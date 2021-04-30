@@ -17,19 +17,32 @@ names(DF_roth)
 head(DF_roth,4)
 summary(DF_roth)
 cor(DF_roth)
+
+
+install.packages("ggplot2")
+library(GGally)
+windows()
 ggpairs(DF_roth, title="correlogram with ggpairs()")
 
 
 ## Regressão linear simples
 ## Estimação OLS do modelo
 lm_fit.1 <- lm(illness ~ exercise, data = DF_roth)
-summary(lm_fit.1)$coefficients # mostrar parametros
+summary(lm_fit.1) # mostrar parametros
 
 ## Regressão linear simples no lavaan (Especificação)
 model.1 <- "
-illness ~ exercise" # illness em função de exercise
+illness ~ exercise" 
 fit.1 <- sem(model.1, data=DF_roth, meanstructure=T)
 summary(fit.1, standardized = TRUE, rsquare = TRUE)
+
+semPaths(fit.1, title = FALSE, curvePivot = TRUE, layout="tree", intercepts=T, 
+         rotation=2, nCharNodes=0, sizeMan=10, residuals=T, exoVar=F, edge.color=9)
+
+
+
+
+
 
 ## Regressão múltipla
 ## Estimação OLS do modelo
@@ -59,7 +72,7 @@ residuals(fit.3, type = "raw")
 residuals(fit.3, type = "cor")
 resid(fit.3, type="normalized")$cov # resíduo dividido pelo devios padrão estimado dos resíduos
 
-fitMeasures(fit.3)[1:32]
+fitMeasures(fit.3)
 fitMeasures(fit.3, c("chisq", "df", "pvalue", "rmsea", "rmsea.ci.lower", "rmsea.ci.upper", "cfi", "tli",  "srmr"))
 
 
@@ -83,8 +96,9 @@ total2 := c2 + (a2*b2)
 "
 fit.4 <- sem(model.4, data=DF_roth, meanstructure=T, se = "bootstrap", bootstrap = 100)
 summary(fit.4, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
-parameterestimates(fit.4)[parameterEstimates(fit.4)$op=="~" | parameterEstimates(fit.4)$op==":=",] 
+parameterestimates(fit.4)
 # se necessário intervalos de confiança
+
 anova(fit.3, fit.4)
 lavTestLRT(fit.3, fit.4)
 compareFit(fit.3, fit.4, nested = TRUE) 
